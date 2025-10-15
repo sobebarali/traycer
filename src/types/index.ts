@@ -383,6 +383,137 @@ export function isVerificationReport(value: unknown): value is VerificationRepor
 }
 
 /**
+ * Structure of code analyzed by AST parser
+ */
+export interface CodeStructure {
+  /** List of function declarations */
+  functions: FunctionInfo[];
+
+  /** List of class declarations */
+  classes: ClassInfo[];
+
+  /** List of import statements */
+  imports: ImportInfo[];
+
+  /** List of export statements */
+  exports: ExportInfo[];
+
+  /** List of interface declarations */
+  interfaces: InterfaceInfo[];
+
+  /** List of type alias declarations */
+  types: TypeAliasInfo[];
+}
+
+/**
+ * Information about a function declaration
+ */
+export interface FunctionInfo {
+  /** Function name */
+  name: string;
+
+  /** Parameters */
+  parameters: string[];
+
+  /** Return type if specified */
+  returnType?: string;
+
+  /** Whether function is exported */
+  isExported: boolean;
+
+  /** Whether function is async */
+  isAsync: boolean;
+
+  /** Line number where function starts */
+  line: number;
+}
+
+/**
+ * Information about a class declaration
+ */
+export interface ClassInfo {
+  /** Class name */
+  name: string;
+
+  /** Methods in the class */
+  methods: string[];
+
+  /** Properties in the class */
+  properties: string[];
+
+  /** Whether class is exported */
+  isExported: boolean;
+
+  /** Line number where class starts */
+  line: number;
+}
+
+/**
+ * Information about an import statement
+ */
+export interface ImportInfo {
+  /** Module being imported from */
+  from: string;
+
+  /** Named imports */
+  named: string[];
+
+  /** Default import if any */
+  default?: string;
+
+  /** Namespace import if any */
+  namespace?: string;
+
+  /** Line number where import is */
+  line: number;
+}
+
+/**
+ * Information about an export statement
+ */
+export interface ExportInfo {
+  /** Name of exported item */
+  name: string;
+
+  /** Type of export */
+  type: 'named' | 'default' | 'all';
+
+  /** Line number where export is */
+  line: number;
+}
+
+/**
+ * Information about an interface declaration
+ */
+export interface InterfaceInfo {
+  /** Interface name */
+  name: string;
+
+  /** Properties in the interface */
+  properties: string[];
+
+  /** Whether interface is exported */
+  isExported: boolean;
+
+  /** Line number where interface starts */
+  line: number;
+}
+
+/**
+ * Information about a type alias declaration
+ */
+export interface TypeAliasInfo {
+  /** Type alias name */
+  name: string;
+
+  /** Whether type is exported */
+  isExported: boolean;
+
+  /** Line number where type starts */
+  line: number;
+}
+
+/**
  * Type guard to check if a value is a Diff
  * @param value - The value to check
  * @returns True if value is a Diff, false otherwise

@@ -20,6 +20,9 @@ module.exports = {
   transform: {
     '^.+\\.ts$': 'ts-jest',
   },
+  moduleNameMapper: {
+    '^vscode$': '<rootDir>/test/__mocks__/vscode.ts',
+  },
   globals: {
     'ts-jest': {
       tsconfig: {
