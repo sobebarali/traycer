@@ -66,8 +66,13 @@ describe('TaskParser - Edge Cases', () => {
   describe('Scope Extraction Edge Cases', () => {
     it('should handle very short words', () => {
       const scope = parser.identifyScope('Add a to b or c');
-      expect(scope.length).toBeGreaterThan(0);
-      // Single letters should be filtered unless they're meaningful (like API)
+      // Single letters (a, b, c) should be filtered, "Add" is intent keyword, "to" and "or" are stopwords
+      expect(scope.length).toBe(0);
+
+      // But meaningful short words like API should be kept
+      const scope2 = parser.identifyScope('Add API endpoint');
+      expect(scope2).toContain('API');
+      expect(scope2).toContain('endpoint');
     });
 
     it('should handle description with only stopwords', () => {
