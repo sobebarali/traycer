@@ -18,14 +18,16 @@ Build a simplified version of Traycer as a **VS Code extension** that captures t
 
 ## Core Features
 
-### 1. Plan Generation
+### 1. AI-Powered Plan Generation
 - User provides a task description (e.g., "Add user authentication")
 - Extension analyzes the workspace and existing code
+- Uses **Anthropic's Claude AI** to generate intelligent, context-aware plans
 - Generates a detailed plan with:
-  - Files to create/modify
+  - Files to create/modify with clear reasoning
   - Step-by-step implementation tasks
-  - Reasoning for each decision
+  - Detailed reasoning for each decision
   - Dependencies and order of operations
+  - Adaptation to existing codebase patterns
 
 ### 2. Interactive Plan Viewer
 - Display plans in a custom VS Code webview panel
@@ -39,17 +41,22 @@ Build a simplified version of Traycer as a **VS Code extension** that captures t
 - Verify files were modified as planned
 - Highlight deviations from the plan
 
-### 4. Codebase Intelligence
-- Parse project structure and dependencies
+### 4. Codebase Intelligence (AI-Enhanced)
+- Parse project structure and dependencies using AST analysis
 - Identify relevant files and patterns
 - Understand existing architecture
-- Suggest consistent implementation approaches
+- **AI analyzes codebase context** to generate plans that:
+  - Follow existing patterns and conventions
+  - Respect project structure
+  - Consider dependencies and side effects
+  - Provide reasoning for architectural decisions
 
 ## Technical Stack
 
 - **Language**: TypeScript
 - **Platform**: VS Code Extension API
 - **Runtime**: Node.js
+- **AI/LLM**: Anthropic Claude API (for intelligent plan generation)
 - **UI**: React (for webview panels)
 - **Code Analysis**: TypeScript Compiler API, AST parsing
 - **Testing**: Jest, VS Code Extension Test Runner
@@ -61,16 +68,21 @@ traycer-vscode/
 ├── src/
 │   ├── extension.ts              # Entry point, command registration
 │   ├── core/
-│   │   ├── planGenerator.ts      # Core planning logic
+│   │   ├── planGenerator.ts      # AI-powered plan generation
 │   │   ├── codeAnalyzer.ts       # Workspace analysis
 │   │   ├── taskParser.ts         # Parse user task descriptions
 │   │   └── planVerifier.ts       # Verify implementation matches plan
+│   ├── ai/
+│   │   ├── aiClient.ts           # Anthropic API integration
+│   │   ├── promptBuilder.ts      # Build AI prompts with context
+│   │   └── responseParser.ts     # Parse AI responses
 │   ├── ui/
 │   │   ├── planView.ts           # WebView controller
 │   │   └── components/           # React components for UI
 │   ├── utils/
 │   │   ├── fileSystem.ts         # File operations
-│   │   └── ast.ts                # AST parsing utilities
+│   │   ├── ast.ts                # AST parsing utilities
+│   │   └── config.ts             # API key management
 │   └── types/
 │       └── index.ts              # TypeScript interfaces
 ├── package.json                  # Extension manifest
@@ -80,40 +92,74 @@ traycer-vscode/
 
 ## Development Approach
 
-### Phase 1: Foundation
+### Phase 1: Foundation & Setup ✅
 - Set up VS Code extension boilerplate
-- Implement basic command to trigger plan generation
-- Create simple plan data structure
+- Configure TypeScript, ESLint, Prettier, Jest
+- Create project structure
 
-### Phase 2: Code Analysis
-- Build workspace analyzer
-- Parse TypeScript/JavaScript files
-- Identify project patterns and structure
+### Phase 2: Type System & Data Models ✅
+- Define core types (Plan, Step, FileChange, etc.)
+- Create type-safe interfaces
 
-### Phase 3: Plan Generation
-- Implement task parsing logic
-- Generate structured plans based on codebase analysis
-- Add reasoning and dependencies
+### Phase 3: Utility Layer ✅
+- File system operations
+- AST parsing utilities
+- Logger implementation
 
-### Phase 4: UI & Visualization
-- Create webview panel for plan display
-- Build interactive checklist interface
-- Add plan editing capabilities
+### Phase 4: Analysis & Parsing ✅
+- Task parsing with intent detection
+- Workspace analysis with code patterns
+- Dependency graph building
 
-### Phase 5: Verification & Polish
-- Implement basic plan verification
-- Add progress tracking
-- Refine UX and error handling
+### Phase 5: AI-Powered Plan Generation (NEXT - CRITICAL)
+- Anthropic Claude API integration
+- Prompt building with codebase context
+- AI response parsing and validation
+- Secure API key management
+
+### Phase 6: Extension Integration
+- Command registration
+- VS Code extension activation
+- State management
+
+### Phase 7: WebView UI
+- React-based plan viewer
+- Interactive checklist
+- Plan editing capabilities
+
+### Phase 8-12: Polish, Testing, Documentation, Release
+- Plan verification
+- Comprehensive testing
+- Documentation
+- VS Code Marketplace packaging
 
 ## How It Demonstrates Traycer's Vision
 
 This implementation captures Traycer's core philosophy:
 
-1. **Structured Planning**: Converts unstructured ideas into actionable specs
-2. **Context Awareness**: Analyzes existing code to make informed decisions
-3. **Drift Prevention**: Maintains focus on the original plan throughout implementation
-4. **Agent Agnostic**: Plan can be executed by any developer or AI agent
-5. **Verification**: Ensures implementation matches intent
+1. **AI-Powered Planning**: Uses Claude AI to convert unstructured ideas into detailed, actionable specs
+2. **Context Awareness**: Analyzes existing code and provides it to AI for intelligent, context-aware decisions
+3. **Drift Prevention**: Maintains focus on the original plan throughout implementation with reasoning for each step
+4. **Agent Agnostic**: Generated plans can be executed by any developer or AI coding agent
+5. **Verification**: Ensures implementation matches the planned intent
+6. **Reasoning-First**: Every decision includes clear reasoning, preventing hallucinations and misunderstandings
+
+## Prerequisites
+
+To use this extension, you'll need:
+
+1. **VS Code** version 1.85.0 or higher
+2. **Anthropic API Key** - Get one from [Anthropic Console](https://console.anthropic.com/)
+   - Sign up for Anthropic account
+   - Generate API key
+   - Configure in extension settings on first use
+
+## Setup
+
+1. Install the extension (via VSIX or Marketplace)
+2. On first use, you'll be prompted to enter your Anthropic API key
+3. API key is securely stored in VS Code's SecretStorage
+4. Start generating plans!
 
 ---
 

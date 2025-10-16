@@ -23,6 +23,7 @@ Traycer is built as a VS Code extension that provides an intelligent planning la
 │  │  ┌──────────────┐  ┌──────────────┐  ┌──────────┐ │ │
 │  │  │     Plan     │  │     Code     │  │   Task   │ │ │
 │  │  │  Generator   │  │   Analyzer   │  │  Parser  │ │ │
+│  │  │   (AI/LLM)   │  │              │  │          │ │ │
 │  │  └──────────────┘  └──────────────┘  └──────────┘ │ │
 │  └───────────────────────────────────────────────────┘ │
 │                            │                             │
@@ -32,14 +33,19 @@ Traycer is built as a VS Code extension that provides an intelligent planning la
 │  │  │   File       │  │     AST      │  │  Logger  │ │ │
 │  │  │   System     │  │   Parser     │  │          │ │ │
 │  │  └──────────────┘  └──────────────┘  └──────────┘ │ │
+│  │  ┌──────────────┐                                  │ │
+│  │  │  AI/LLM      │                                  │ │
+│  │  │  Client      │                                  │ │
+│  │  └──────────────┘                                  │ │
 │  └───────────────────────────────────────────────────┘ │
 └─────────────────────────────────────────────────────────┘
                             │
-                            ▼
-                   ┌─────────────────┐
-                   │   Workspace     │
-                   │   File System   │
-                   └─────────────────┘
+                ┌───────────┴───────────┐
+                ▼                       ▼
+       ┌─────────────────┐     ┌─────────────────┐
+       │   Workspace     │     │   AI/LLM API    │
+       │   File System   │     │   (Anthropic)   │
+       └─────────────────┘     └─────────────────┘
 ```
 
 ## Component Architecture
@@ -55,9 +61,9 @@ Traycer is built as a VS Code extension that provides an intelligent planning la
 
 ### Core Business Logic
 
-#### 1. Plan Generator
+#### 1. Plan Generator (AI-Powered)
 
-**Purpose**: Generate structured development plans from task descriptions
+**Purpose**: Generate structured development plans from task descriptions using AI/LLM
 
 **Key Methods**:
 - `generatePlan(taskDescription: string): Promise<Plan>`
@@ -66,10 +72,18 @@ Traycer is built as a VS Code extension that provides an intelligent planning la
 
 **Responsibilities**:
 - Parse task descriptions
-- Analyze codebase context
-- Generate step-by-step instructions
+- Build context from codebase analysis
+- Use AI/LLM to generate intelligent plans
+- Generate step-by-step instructions with reasoning
 - Identify files to create/modify
-- Provide reasoning for decisions
+- Provide detailed reasoning for decisions
+- Ensure plans are actionable and specific
+
+**AI Integration**:
+- Uses Anthropic's Claude API for plan generation
+- Provides codebase context to AI for intelligent decisions
+- Structures AI output into Plan objects
+- Validates AI-generated plans for completeness
 
 #### 2. Code Analyzer
 
@@ -165,30 +179,57 @@ Traycer is built as a VS Code extension that provides an intelligent planning la
 - `warn(message: string, context?: object): void`
 - `error(message: string, error?: Error): void`
 
+#### AI/LLM Client
+
+**Purpose**: Interface with AI/LLM APIs for intelligent plan generation
+
+**Key Methods**:
+- `generatePlan(prompt: string, context: CodeContext): Promise<string>`
+- `validateApiKey(): Promise<boolean>`
+- `checkRateLimit(): Promise<boolean>`
+
+**Responsibilities**:
+- Manage API authentication and configuration
+- Build prompts with codebase context
+- Handle API calls to Anthropic Claude
+- Parse and validate AI responses
+- Handle rate limiting and errors
+- Implement retry logic
+- Cache responses when appropriate
+
 ## Data Flow
 
-### Plan Generation Flow
+### Plan Generation Flow (AI-Powered)
 
 ```
 User Input
     │
     ▼
-Task Parser ──────> Task Description
+Task Parser ──────────> Task Description
     │
     ▼
-Code Analyzer ────> Workspace Analysis
+Code Analyzer ────────> Workspace Analysis
+    │                   (files, patterns, dependencies)
+    ▼
+Context Builder ──────> Codebase Context
+    │                   (relevant files, structure)
+    ▼
+AI/LLM Client ────────> AI Prompt with Context
     │
     ▼
-Plan Generator ───> Structured Plan
+Anthropic Claude API ─> AI-Generated Plan
     │
     ▼
-WebView ──────────> User Review
+Plan Generator ───────> Structured Plan Object
+    │                   (parse & validate AI output)
+    ▼
+WebView ──────────────> User Review & Edit
     │
     ▼
 Implementation
     │
     ▼
-Plan Verifier ────> Verification Report
+Plan Verifier ────────> Verification Report
 ```
 
 ### Command Execution Flow
@@ -197,15 +238,18 @@ Plan Verifier ────> Verification Report
 1. User triggers command (Cmd+Shift+P → "Traycer: Generate Plan")
 2. Extension calls command handler
 3. Show input box for task description
-4. Pass to Task Parser
-5. Task Parser validates and normalizes input
+4. Validate API key is configured
+5. Pass to Task Parser (validates & normalizes input)
 6. Code Analyzer scans workspace
-7. Plan Generator creates structured plan
-8. Store plan in workspace state
-9. Show plan in WebView
-10. User reviews and edits plan
-11. User implements according to plan
-12. Plan Verifier checks implementation
+7. Context Builder prepares codebase context for AI
+8. AI/LLM Client sends prompt to Anthropic Claude API
+9. Plan Generator parses and structures AI response
+10. Validate generated plan for completeness
+11. Store plan in workspace state (.traycer/plans/)
+12. Show plan in WebView
+13. User reviews and edits plan
+14. User implements according to plan
+15. Plan Verifier checks implementation
 ```
 
 ## Design Decisions
@@ -260,6 +304,25 @@ Plan Verifier ────> Verification Report
 - Type-safe message contracts
 - Event-driven architecture
 
+### 6. AI/LLM Integration
+
+**Decision**: Use Anthropic's Claude API for intelligent plan generation
+
+**Rationale**:
+- Natural language understanding for task descriptions
+- Contextual awareness of codebase structure
+- Reasoning capability for plan decisions
+- High-quality, structured output
+- Aligns with original Traycer.ai vision
+- Reduces development drift through intelligent planning
+
+**Implementation Approach**:
+- User provides Anthropic API key via configuration
+- Extension builds rich context from codebase analysis
+- AI generates plans with reasoning and dependencies
+- Plans are validated and structured before presentation
+- Fallback to rule-based generation if API unavailable
+
 ## Folder Structure
 
 See [.ruler/02_folder_structure.md](../.ruler/02_folder_structure.md) for detailed folder structure documentation.
@@ -269,10 +332,14 @@ traycer/
 ├── src/
 │   ├── extension.ts           # Extension entry point
 │   ├── core/                  # Core business logic
-│   │   ├── planGenerator.ts
+│   │   ├── planGenerator.ts   # AI-powered plan generation
 │   │   ├── codeAnalyzer.ts
 │   │   ├── taskParser.ts
 │   │   └── planVerifier.ts
+│   ├── ai/                    # AI/LLM integration
+│   │   ├── aiClient.ts        # Anthropic API client
+│   │   ├── promptBuilder.ts   # Build prompts with context
+│   │   └── responseParser.ts  # Parse AI responses
 │   ├── ui/                    # UI components
 │   │   ├── planView.ts
 │   │   └── webview/
@@ -332,6 +399,10 @@ See [.ruler/08_security_guidelines.md](../.ruler/08_security_guidelines.md) for 
 - Use CSP for webviews
 - Never log sensitive data
 - HTTPS only for external calls
+- Secure API key storage (VS Code SecretStorage)
+- Never log or expose API keys
+- Sanitize code context before sending to AI
+- Respect user privacy - no telemetry without consent
 
 ## Performance Considerations
 
@@ -363,10 +434,12 @@ See [.ruler/08_security_guidelines.md](../.ruler/08_security_guidelines.md) for 
 The architecture supports future extensions:
 
 1. **Custom Plan Templates** - User-defined plan templates
-2. **AI Integration** - LLM-powered plan generation
+2. **Multiple AI Providers** - Support OpenAI, Google, etc.
 3. **Team Collaboration** - Share plans across team
 4. **Git Integration** - Link plans to branches/PRs
 5. **Analytics** - Track plan effectiveness
+6. **Fine-tuned Models** - Custom-trained models for specific domains
+7. **Offline Mode** - Fallback to rule-based generation
 
 ## Testing Strategy
 
