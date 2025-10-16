@@ -43,9 +43,10 @@
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
+    "build": "npm run typecheck && npm run lint && npm run format && npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.test.json",
     "pretest": "npm run compile",
     "test": "jest",
     "test:watch": "jest --watch",

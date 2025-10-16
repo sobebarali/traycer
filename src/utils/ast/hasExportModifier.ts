@@ -1,0 +1,27 @@
+/**
+ * Checks if a node has an export modifier
+ */
+
+import * as ts from 'typescript';
+
+/**
+ * Checks if a node has an export modifier
+ * @param node - TypeScript AST node
+ * @returns True if node has export modifier
+ */
+export function hasExportModifier(node: ts.Node): boolean {
+  if (!ts.canHaveModifiers(node)) {
+    return false;
+  }
+
+  const modifiers = ts.getModifiers(node);
+  if (!modifiers) {
+    return false;
+  }
+
+  return modifiers.some(
+    (modifier: ts.Modifier) =>
+      modifier.kind === ts.SyntaxKind.ExportKeyword ||
+      modifier.kind === ts.SyntaxKind.DefaultKeyword
+  );
+}

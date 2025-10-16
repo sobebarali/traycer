@@ -55,7 +55,7 @@ describe('fileSystem utilities', () => {
     it('should write file successfully', async () => {
       (vscode.workspace.fs.writeFile as jest.Mock).mockResolvedValue(undefined);
 
-      await writeFile('/test/workspace/file.ts', 'content');
+      await writeFile({ filePath: '/test/workspace/file.ts', content: 'content' });
 
       expect(vscode.workspace.fs.writeFile).toHaveBeenCalledWith(
         expect.objectContaining({ fsPath: '/test/workspace/file.ts' }),
@@ -68,15 +68,15 @@ describe('fileSystem utilities', () => {
         new Error('Permission denied')
       );
 
-      await expect(writeFile('/test/workspace/file.ts', 'content')).rejects.toThrow(
-        'Failed to write file'
-      );
+      await expect(
+        writeFile({ filePath: '/test/workspace/file.ts', content: 'content' })
+      ).rejects.toThrow('Failed to write file');
     });
 
     it('should reject file path outside workspace', async () => {
-      await expect(writeFile('/outside/workspace/file.ts', 'content')).rejects.toThrow(
-        'File path must be within workspace'
-      );
+      await expect(
+        writeFile({ filePath: '/outside/workspace/file.ts', content: 'content' })
+      ).rejects.toThrow('File path must be within workspace');
     });
   });
 
@@ -121,7 +121,7 @@ describe('fileSystem utilities', () => {
       ];
       (vscode.workspace.findFiles as jest.Mock).mockResolvedValue(mockUris);
 
-      const result = await findFiles('**/*.ts');
+      const result = await findFiles({ pattern: '**/*.ts' });
 
       expect(result).toEqual(['/test/workspace/src/file1.ts', '/test/workspace/src/file2.ts']);
       expect(vscode.workspace.findFiles).toHaveBeenCalledWith('**/*.ts', null);
@@ -130,7 +130,7 @@ describe('fileSystem utilities', () => {
     it('should return empty array when no files match', async () => {
       (vscode.workspace.findFiles as jest.Mock).mockResolvedValue([]);
 
-      const result = await findFiles('**/*.xyz');
+      const result = await findFiles({ pattern: '**/*.xyz' });
 
       expect(result).toEqual([]);
     });
@@ -139,7 +139,7 @@ describe('fileSystem utilities', () => {
       const mockUris = [{ fsPath: '/test/workspace/src/file1.ts' }];
       (vscode.workspace.findFiles as jest.Mock).mockResolvedValue(mockUris);
 
-      const result = await findFiles('**/*.ts', '**/node_modules/**');
+      const result = await findFiles({ pattern: '**/*.ts', exclude: '**/node_modules/**' });
 
       expect(vscode.workspace.findFiles).toHaveBeenCalledWith('**/*.ts', '**/node_modules/**');
       expect(result).toEqual(['/test/workspace/src/file1.ts']);

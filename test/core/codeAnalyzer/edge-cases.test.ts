@@ -3,18 +3,23 @@
  */
 
 import * as path from 'path';
-import { CodeAnalyzer } from '../../../src/core/codeAnalyzer';
-import { TaskParser } from '../../../src/core/taskParser';
+import { analyzeWorkspace, findRelevantFiles } from '../../../src/core/codeAnalyzer';
+import { parseTaskDescription } from '../../../src/core/taskParser';
+import type { WorkspaceAnalysis, FileInfo, CodePattern, TaskDescription } from '../../../src/types';
 
 describe('CodeAnalyzer - Edge Cases', () => {
   const fixturesPath = path.join(__dirname, '../../fixtures/sample-project');
-  let analyzer: CodeAnalyzer;
-  let parser: TaskParser;
 
-  beforeEach(() => {
-    analyzer = new CodeAnalyzer(fixturesPath);
-    parser = new TaskParser();
-  });
+  // Helper object to match old test structure
+  const analyzer = {
+    analyzeWorkspace: () => analyzeWorkspace(fixturesPath),
+    extractPatterns: async () => {
+      const analysis = await analyzeWorkspace(fixturesPath);
+      return analysis.patterns;
+    },
+    findRelevantFiles: (task: TaskDescription) =>
+      findRelevantFiles({ task, workspaceRoot: fixturesPath }),
+  };
 
   describe('Workspace Paths', () => {
     it('should handle workspace path with spaces', async () => {
@@ -83,7 +88,7 @@ describe('CodeAnalyzer - Edge Cases', () => {
 
   describe('findRelevantFiles Edge Cases', () => {
     it('should handle task with no scope keywords', async () => {
-      const task = await parser.parseTaskDescription('Do something');
+      const task = await parseTaskDescription('Do something');
       const relevantFiles = await analyzer.findRelevantFiles(task);
 
       // Should still return files, possibly all files
@@ -91,7 +96,7 @@ describe('CodeAnalyzer - Edge Cases', () => {
     });
 
     it('should handle task with many scope keywords', async () => {
-      const task = await parser.parseTaskDescription(
+      const task = await parseTaskDescription(
         'Update user authentication login profile settings manager'
       );
       const relevantFiles = await analyzer.findRelevantFiles(task);
@@ -100,7 +105,7 @@ describe('CodeAnalyzer - Edge Cases', () => {
     });
 
     it('should handle task with file extension in scope', async () => {
-      const task = await parser.parseTaskDescription('Fix login.ts authentication');
+      const task = await parseTaskDescription('Fix login.ts authentication');
       const relevantFiles = await analyzer.findRelevantFiles(task);
 
       // Should find login.ts
@@ -109,7 +114,7 @@ describe('CodeAnalyzer - Edge Cases', () => {
     });
 
     it('should handle task with path-like keywords', async () => {
-      const task = await parser.parseTaskDescription('Update src/auth/user file');
+      const task = await parseTaskDescription('Update src/auth/user file');
       const relevantFiles = await analyzer.findRelevantFiles(task);
 
       // Should find user-related files
@@ -154,7 +159,7 @@ describe('CodeAnalyzer - Edge Cases', () => {
       const analysis = await analyzer.analyzeWorkspace();
 
       // External dependencies (like 'express') should be tracked
-      const hasExternalDeps = Object.values(analysis.dependencies).some((deps) =>
+      const hasExternalDeps = (Object.values(analysis.dependencies) as string[][]).some((deps) =>
         deps.some((dep) => !dep.startsWith('.'))
       );
 
@@ -203,7 +208,7 @@ describe('CodeAnalyzer - Edge Cases', () => {
       const results = await Promise.all(promises);
 
       // All should succeed
-      results.forEach((result) => {
+      results.forEach((result: WorkspaceAnalysis) => {
         expect(result).toBeDefined();
         expect(result.files).toBeDefined();
       });
@@ -238,7 +243,7 @@ describe('CodeAnalyzer - Edge Cases', () => {
     it('should return valid FileInfo objects', async () => {
       const analysis = await analyzer.analyzeWorkspace();
 
-      analysis.files.forEach((file) => {
+      analysis.files.forEach((file: FileInfo) => {
         expect(typeof file.path).toBe('string');
         expect(typeof file.type).toBe('string');
         expect(typeof file.size).toBe('number');
@@ -250,7 +255,7 @@ describe('CodeAnalyzer - Edge Cases', () => {
     it('should return valid CodePattern objects', async () => {
       const patterns = await analyzer.extractPatterns();
 
-      patterns.forEach((pattern) => {
+      patterns.forEach((pattern: CodePattern) => {
         expect(typeof pattern.type).toBe('string');
         expect(typeof pattern.name).toBe('string');
         expect(typeof pattern.location).toBe('string');

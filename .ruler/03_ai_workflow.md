@@ -2,12 +2,21 @@
 
 ## 🚨 MANDATORY: Post-Task Commands
 
-After **ANY** code change, run these in order (all must pass):
+After **ANY** code change, run ONE of these options:
+
+**Option 1: Single Build Command (Recommended)**
 ```bash
-npm run typecheck    # Fix TypeScript errors
-npm run lint         # Check code quality
-npm run format       # Format code
+npm run build       # Runs: typecheck → lint → format → compile
 ```
+
+**Option 2: Individual Commands**
+```bash
+npm run typecheck   # Fix TypeScript errors
+npm run lint        # Check code quality
+npm run format      # Format code
+```
+
+**All checks must pass before completing a task.**
 
 **Note:** Tests are run manually by the user, not automatically after code changes.
 
@@ -184,13 +193,18 @@ Before completing a task:
 
 1. ✅ Did I read existing patterns first?
 2. ✅ Did I write tests BEFORE implementation? (TDD)
-3. ✅ Did I add/modify commands? → Update `package.json` contributions
-4. ✅ Did I add new types? → Export from `src/types/index.ts`
-5. ✅ Did I add webview UI? → Implement proper message handling
-6. ✅ Did post-task commands (typecheck, lint, format) pass?
-7. ✅ Did I add JSDoc comments for public APIs?
-8. ✅ Did I update README for major features?
-9. ✅ Did I follow VS Code extension best practices?
+3. ✅ Did I follow functional programming rules?
+   - One function per file?
+   - No classes (except minimal VS Code API)?
+   - Pure functions with immutable data?
+   - Named exports only?
+4. ✅ Did I add/modify commands? → Update `package.json` contributions
+5. ✅ Did I add new types? → Export from `src/types/index.ts`
+6. ✅ Did I add webview UI? → Implement proper message handling
+7. ✅ Did post-task commands (typecheck, lint, format) pass?
+8. ✅ Did I add JSDoc comments for public APIs?
+9. ✅ Did I update README for major features?
+10. ✅ Did I follow VS Code extension best practices?
 
 ---
 
@@ -243,14 +257,23 @@ Before completing a task:
    ✅ Implement to make tests pass
    ```
 
-3. **Document thoroughly**
+3. **Follow functional programming rules**
+   ```
+   ✅ One function per file (file name = function name)
+   ✅ No classes (except minimal VS Code API requirements)
+   ✅ Pure functions with immutable data
+   ✅ Named exports only
+   ✅ Explicit dependencies as parameters
+   ```
+
+4. **Document thoroughly**
    ```
    ✅ JSDoc for all public APIs
    ✅ Update README for major features
    ✅ Export and document types
    ```
 
-4. **Follow VS Code best practices**
+5. **Follow VS Code best practices**
    ```
    ✅ Use appropriate activation events
    ✅ Dispose resources properly
@@ -275,14 +298,23 @@ Before completing a task:
 1. 📖 **Read** → Understand project and existing patterns
 2. 🎯 **Plan** → Design types and module structure
 3. 🧪 **Test First** → Write tests before implementation (TDD)
-4. ✍️ **Implement** → Write code to make tests pass
+4. ✍️ **Implement** → Write code to make tests pass (functional programming)
 5. 📝 **Document** → Add JSDoc and update README
 6. ✅ **Verify** → Run typecheck, lint, format (user runs tests)
 
 **Key principles:**
 - Read before write
 - Test-driven development (write tests first)
+- **Functional programming** (one function per file, no classes, immutable data)
 - Implement to make tests pass
 - Document public APIs
 - Follow VS Code extension best practices
 - User runs tests manually
+
+**Functional Programming Rules (MANDATORY):**
+- One function per file (file name = function name)
+- No classes (except minimal VS Code API requirements)
+- Pure functions with immutable data structures
+- Named exports only (`export function name()`)
+- Explicit dependencies (pass as parameters)
+- Function composition over inheritance

@@ -10,12 +10,16 @@ This is a VS Code Extension project with the following structure:
 
 ## Available Scripts
 
-### Development
+### Build & Verify
+- `npm run build` - **Complete build process** (typecheck + lint + format + compile)
 - `npm run compile` - Compile TypeScript to JavaScript
-- `npm run watch` - Watch mode for development
 - `npm run typecheck` - Run TypeScript type checking
 - `npm run lint` - Run ESLint for code quality
 - `npm run format` - Run Prettier for code formatting
+
+### Development
+- `npm run watch` - Watch mode for development
+- `F5` in VS Code - Launch extension in debug mode
 
 ### Testing
 - `npm test` - Run all tests
@@ -23,16 +27,25 @@ This is a VS Code Extension project with the following structure:
 - `npm run test:coverage` - Generate test coverage report
 
 ### Extension Development
-- `F5` in VS Code - Launch extension in debug mode
 - `npm run vscode:prepublish` - Prepare for publishing
 - `npm run package` - Package extension as VSIX
 
 ## Post-Task Commands
 
-**MANDATORY**: After completing any task, run:
-1. `npm run typecheck` - Verify TypeScript compilation
-2. `npm run lint` - Check code quality
-3. `npm run format` - Format code consistently
+**MANDATORY**: After completing any task, run ONE of these:
+
+**Option 1: Quick Validation (Recommended)**
+```bash
+npm run build
+```
+This runs all checks: typecheck → lint → format → compile
+
+**Option 2: Individual Commands**
+```bash
+npm run typecheck  # Verify TypeScript compilation
+npm run lint       # Check code quality
+npm run format     # Format code consistently
+```
 
 **Note:** User runs tests manually
 
